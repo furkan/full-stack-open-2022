@@ -11,18 +11,20 @@ const Feedback = (props) => (
   </div>
 )
 
+const StatisticLine = ({text, value}) => <p>{text}: {value}</p>
+
 const Statistics = (props) => {
   const total = props.good + props.neutral + props.bad
   if (total === 0) return <p>No feedback given</p>
   return (
     <div>
       <h2>statistics</h2>
-      <p>good {props.good}</p>
-      <p>neutral {props.neutral}</p>
-      <p>bad {props.bad}</p>
-      <p>all {total}</p>
-      <p>average {props.good - props.bad}</p>
-      <p>positive {100 * props.good / total}%</p>
+      <StatisticLine text='good' value={props.good} />
+      <StatisticLine text='neutral' value={props.neutral} />
+      <StatisticLine text='bad' value={props.bad} />
+      <StatisticLine text='all' value={total} />
+      <StatisticLine text='average' value={props.good - props.bad} />
+      <StatisticLine text='positive feedback percentage' value={100 * props.good / total} />
     </div>
   )
 }
