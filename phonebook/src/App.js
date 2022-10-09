@@ -1,5 +1,28 @@
 import { useEffect, useState } from 'react'
 import personService from './services/persons'
+import './index.css'
+
+const Notification = ({message}) => {
+  if (message === null) {
+    return null
+  }
+  return (
+    <div className='success'>
+      {message}
+    </div>
+  )
+}
+
+const Error = ({message}) => {
+  if (message === null) {
+    return null
+  }
+  return (
+    <div className='error'>
+      {message}
+    </div>
+  )
+}
 
 const Filter = ({newFilter, handleFilterChange}) => (
   <>
@@ -35,7 +58,7 @@ const PersonForm = (props) => (
 
 const DeletePersonButton = ({person, handleDeleteClick}) => {
   const handleClick = () => {
-    handleDeleteClick(person)
+    handleDeleteClick(person.name, person.id)
   }
   return <button onClick={handleClick}>delete</button>
 }
@@ -57,6 +80,8 @@ const App = () => {
   const [newName, setNewName] = useState('New person')
   const [newNumber, setNewNumber] = useState('+90')
   const [newFilter, setNewFilter] = useState('')
+  const [successMessage, setSuccessMessage] = useState('Welcome to your phonebook')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -74,6 +99,15 @@ const App = () => {
         const newPersonObject = {...personObject, number: newNumber}
         personService
           .update(newPersonObject.id, newPersonObject)
+          .catch(error => {
+            setErrorMessage(`${newName} does not exist in the phonebook`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+          })
+        const newPersonsWithout = persons.filter((person) => person.id !== newPersonObject.id)
+        const newPersons = [...newPersonsWithout, newPersonObject]
+        setPersons(newPersons)
       }
     } else {
       const personObject = {
@@ -85,19 +119,19 @@ const App = () => {
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
-          setNewNumber('')
+          setNewNumber('')  
         })
+      setSuccessMessage(`Successfully added ${personObject.name} to the phonebook`)
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000)
     }
   }
-  const handleDeleteClick = (person) => {
-    if (window.confirm(`Delete ${person.name}?`)) {
+  const handleDeleteClick = (name, id) => {
+    if (window.confirm(`Delete ${name}?`)) {
       personService
-        .remove(person.id)
-      personService
-        .getAll()
-        .then(initialPersons => {
-          setPersons(initialPersons)
-        })
+        .remove(id)
+      setPersons(persons.filter(person => person.id !== id))
     }
   }
 
@@ -114,6 +148,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} />
+      <Error message={errorMessage} />
       <Filter
         newFilter={newFilter}
         handleFilterChange={handleFilterChange}
