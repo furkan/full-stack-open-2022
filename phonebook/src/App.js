@@ -33,11 +33,22 @@ const PersonForm = (props) => (
   </form>
 )
 
+const DeletePersonButton = ({person, handleDeleteClick}) => {
+  const handleClick = () => {
+    handleDeleteClick(person)
+  }
+  return <button onClick={handleClick}>delete</button>
+}
+
+const Person = ({person, handleDeleteClick}) => (
+  <li>{person.name} {person.number} <DeletePersonButton person={person} handleDeleteClick={handleDeleteClick} /></li>
+)
+
 const Persons = (props) => (
   <ul>
     {props.persons
        .filter((person) => person.name.toLowerCase().includes(props.newFilter.toLowerCase()))
-       .map((person) => <li key={person.name}>{person.name} {person.number}</li>)}
+       .map((person) => <Person key={person.id} person={person} handleDeleteClick={props.handleDeleteClick} />)}
   </ul>
 )
 
@@ -73,6 +84,17 @@ const App = () => {
         })
     }
   }
+  const handleDeleteClick = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+        .remove(person.id)
+      personService
+        .getAll()
+        .then(initialPersons => {
+          setPersons(initialPersons)
+        })
+    }
+  }
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -103,6 +125,7 @@ const App = () => {
       <Persons
         persons={persons}
         newFilter={newFilter}
+        handleDeleteClick={handleDeleteClick}
       />
     </div>
   )
