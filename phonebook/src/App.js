@@ -69,7 +69,12 @@ const App = () => {
   const handleClick = (event) => {
     event.preventDefault()
     if (persons.map((person) => person.name).includes(newName)) {
-      alert(`${newName} is already in the phonebook!`)
+      if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)){
+        const personObject = persons.find((person) => person.name === newName)
+        const newPersonObject = {...personObject, number: newNumber}
+        personService
+          .update(newPersonObject.id, newPersonObject)
+      }
     } else {
       const personObject = {
         name: newName,
