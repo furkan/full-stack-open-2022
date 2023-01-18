@@ -100,7 +100,7 @@ const App = () => {
         personService
           .update(newPersonObject.id, newPersonObject)
           .catch(error => {
-            setErrorMessage(`${newName} does not exist in the phonebook`)
+            setErrorMessage(error.response.data.error)
             setTimeout(() => {
               setErrorMessage(null)
             }, 5000)
@@ -120,6 +120,12 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')  
+        })
+        .catch(error => {
+          setErrorMessage(error.response.data.error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
       setSuccessMessage(`Successfully added ${personObject.name} to the phonebook`)
       setTimeout(() => {
